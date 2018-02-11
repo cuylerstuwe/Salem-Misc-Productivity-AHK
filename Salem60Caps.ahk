@@ -1,3 +1,7 @@
+; Latest version: Added Caps+Space as Numpad0
+
+; TODO: Other numpad-specific scancodes w/ caps (i.e., Caps + 1,2,3 as Numpad /,*,-)
+
 LShift & Capslock::
 SetCapsLockState, % (State:=!State) ? "on" : "alwaysoff"
 Return
@@ -39,10 +43,7 @@ return
 DoRegularBehavior(letter) {
 	
 	modifiers := ""
-		
-	if(GetKeyState("LShift", "P")) {
-		StringUpper, letter, letter
-	}
+	processedLetter := letter
 		
 	if(GetKeyState("LControl", "P")) {
 		modifiers = ^%modifiers%
@@ -50,8 +51,16 @@ DoRegularBehavior(letter) {
 	if(GetKeyState("LAlt", "P")) {
 		modifiers = !%modifiers%
 	}
-		
-	fullQuery = %modifiers%%letter%
+	
+	if(GetKeyState("LShift", "P")) {
+		StringUpper, processedLetter, processedLetter
+	}
+	
+	if(letter = "space") {
+		processedLetter := "{Space}"
+	}
+	
+	fullQuery = %modifiers%%processedLetter%
 	
 	SendInput, %fullQuery%
 }
@@ -101,7 +110,6 @@ DoNumpadOrRegularBehavior(letter, numpadString) {
 ~*^8::
 ~*^9::
 ~*^0::
-~*^Space::
 ~*^Backspace::
 ~*^Delete::
 ~*^Insert::
@@ -170,3 +178,6 @@ DoNumpadOrRegularBehavior(letter, numpadString) {
 *c::
 	DoNumpadOrRegularBehavior("c", "Numpad3")
 	return
+	
+*Space::
+	DoNumpadOrRegularBehavior("space", "Numpad0")
